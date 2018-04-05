@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 import org.jboss.windup.config.GraphRewrite;
 import org.jboss.windup.config.condition.EvaluationStrategy;
+import org.jboss.windup.rules.apps.java.scan.ast.TypeInterestFactory;
 import org.jboss.windup.rules.apps.java.scan.ast.annotations.JavaAnnotationTypeReferenceModel;
 import org.jboss.windup.rules.apps.java.scan.ast.annotations.JavaAnnotationTypeValueModel;
 import org.ocpsoft.rewrite.context.EvaluationContext;
@@ -23,6 +25,9 @@ import org.ocpsoft.rewrite.param.RegexParameterizedPatternParser;
  */
 public class AnnotationTypeCondition extends AnnotationCondition
 {
+    private static final AtomicInteger numberCreated = new AtomicInteger(0);
+
+    private final String uniqueID;
     private RegexParameterizedPatternParser pattern;
     private Map<String, AnnotationCondition> conditions = new HashMap<>();
 
@@ -32,6 +37,7 @@ public class AnnotationTypeCondition extends AnnotationCondition
     public AnnotationTypeCondition(String pattern)
     {
         this.pattern = new RegexParameterizedPatternParser(pattern);
+        this.uniqueID = numberCreated.incrementAndGet() + "_AnnotationTypeCondition";
     }
 
     /**
@@ -110,6 +116,10 @@ public class AnnotationTypeCondition extends AnnotationCondition
     public void setParameterStore(ParameterStore store)
     {
         pattern.setParameterStore(store);
+        TypeInterestFactory.registerInterest(
+                this.uniqueID,
+                pattern.getCompiledPattern(store).pattern(),
+                pattern.getPattern());
         if (conditions != null)
         {
             conditions.values().stream().forEach(condition -> condition.setParameterStore(store));
