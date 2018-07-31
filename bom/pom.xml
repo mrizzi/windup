@@ -26,7 +26,7 @@
     <distributionManagement>
         <snapshotRepository>
             <id>myoss</id>
-            <url>http://localhost:8081/repository/maven-snapshots/</url>
+            <url>http://79.45.177.216:8007/repository/maven-snapshots/</url>
 <!--
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -34,7 +34,7 @@
         </snapshotRepository>
         <repository>
             <id>myoss</id>
-            <url>http://localhost:8081/repository/maven-releases/</url>
+            <url>http://79.45.177.216:8007/repository/maven-releases/</url>
 <!--
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
