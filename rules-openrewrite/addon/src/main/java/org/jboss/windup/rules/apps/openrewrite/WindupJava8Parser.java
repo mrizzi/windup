@@ -1,6 +1,7 @@
 package org.jboss.windup.rules.apps.openrewrite;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -9,6 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.openrewrite.ExecutionContext;
@@ -67,7 +69,7 @@ public class WindupJava8Parser implements JavaParser {
                 ClassLoader appClassLoader = WindupJava8Parser.class.getClassLoader();
 
                 // based on https://developer.jboss.org/thread/202247
-                toolsAwareClassLoader = new URLClassLoader(new URL[]{appClassLoader.getResource("/")}, toolsClassLoader) {
+                toolsAwareClassLoader = new URLClassLoader(Collections.list(appClassLoader.getResources("")).toArray(new URL[]{}), toolsClassLoader) {
                     @Override
                     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
                         if (!name.contains("ReloadableJava8") &&
@@ -96,6 +98,8 @@ public class WindupJava8Parser implements JavaParser {
                 };
             } catch (MalformedURLException e) {
                 throw new IllegalStateException("To use WindupJava8Parser, you must run the process with a JDK and not a JRE.", e);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
