@@ -14,6 +14,13 @@
         <openrewrite.version>7.15.0</openrewrite.version>
     </properties>
 
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
     <dependencies>
 
         <!-- Local Dependencies -->
@@ -27,6 +34,7 @@
             <artifactId>rewrite-migrate-java</artifactId>
             <version>0.8.0</version>
         </dependency>
+<!--
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-java</artifactId>
@@ -36,6 +44,17 @@
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-java-8</artifactId>
             <version>${openrewrite.version}</version>
+        </dependency>
+-->
+        <dependency>
+            <groupId>com.github.mrizzi.rewrite</groupId>
+            <artifactId>rewrite-java</artifactId>
+            <version>windup-changes-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.mrizzi.rewrite</groupId>
+            <artifactId>rewrite-java-8</artifactId>
+            <version>windup-changes-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

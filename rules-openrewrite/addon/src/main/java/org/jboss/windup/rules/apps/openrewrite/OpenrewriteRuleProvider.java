@@ -28,6 +28,7 @@ import org.jboss.windup.util.exception.WindupException;
 import org.ocpsoft.rewrite.config.Configuration;
 import org.ocpsoft.rewrite.config.ConfigurationBuilder;
 import org.ocpsoft.rewrite.context.EvaluationContext;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
@@ -35,6 +36,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.config.Environment;
 import org.openrewrite.config.ResourceLoader;
 import org.openrewrite.config.YamlResourceLoader;
+import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 
@@ -104,7 +106,8 @@ public class OpenrewriteRuleProvider extends AbstractRuleProvider
 
                         Recipe recipe = env.activateRecipes("org.konveyor.tackle.JavaxToJakarta");
 
-                        JavaParser javaParser = WindupJava8Parser.builder().build();
+//                        JavaParser javaParser = WindupJava8Parser.builder().build();
+                        JavaParser javaParser = Java8Parser.builder().build();
                         // TODO change this temporary solution (just for running the test) with something that
                         // retrieves all the ".java" files available within the input path
                         Path sourceRoot = Paths.get(inputFilePath);
@@ -116,9 +119,10 @@ public class OpenrewriteRuleProvider extends AbstractRuleProvider
                         } catch (IOException e) {
                             throw new Exception("Unable to list Java source files", e);
                         }
-                        List<J.CompilationUnit> fileList =  javaParser.parse(inputPaths, null, new InMemoryExecutionContext());
+                        ExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
+                        List<J.CompilationUnit> fileList =  javaParser.parse(inputPaths, null, ctx);
 
-                        List<Result> results = recipe.run(fileList);
+                        List<Result> results = recipe.run(fileList, ctx);
                         LOG.info(String.format("%d files changed", results.size()));
                         results.forEach(result -> LOG.info(result.toString()));
                         // TODO should results be stored into the graph in some way?
