@@ -97,14 +97,14 @@ public class CSVExportingTest {
                 configuration.setExportingCSV(true);
             }
             processor.execute(configuration);
-            Assert.assertEquals(exportCSV, new File(outputPath + "/" + FILE1_NAME + ".csv").exists());
-            Assert.assertEquals(exportCSV, new File(outputPath + "/" + FILE2_NAME + ".csv").exists());
+            Assert.assertEquals(exportCSV, outputPath.resolve(FILE1_NAME + ".csv").toFile().exists());
+            Assert.assertEquals(exportCSV, outputPath.resolve(FILE2_NAME + ".csv").toFile().exists());
             if (exportCSV) {
-                Path resource = Paths.get("src/test/resources/test-exports/" + FILE1_NAME + ".csv");
-                Path resource2 = Paths.get("src/test/resources/test-exports/" + FILE2_NAME + ".csv");
+                Path resource = Paths.get("src", "test", "resources", "test-exports", FILE1_NAME + ".csv");
+                Path resource2 = Paths.get("src", "test", "resources", "test-exports", FILE2_NAME + ".csv");
                 try {
-                    Assert.assertTrue(checkFileAreSame(resource.toString(), outputPath + "/" + FILE1_NAME + ".csv"));
-                    Assert.assertTrue(checkFileAreSame(resource2.toString(), outputPath + "/" + FILE2_NAME + ".csv"));
+                    Assert.assertTrue(checkFileAreSame(resource.toString(), outputPath.resolve(FILE1_NAME + ".csv").toString()));
+                    Assert.assertTrue(checkFileAreSame(resource2.toString(), outputPath.resolve(FILE2_NAME + ".csv").toString()));
                 } catch (IOException ex) {
                     Assert.fail("Exception was thrown while checking if the exported CSV file looks like expected. Exception: " + ex);
                 }
@@ -182,9 +182,39 @@ public class CSVExportingTest {
         if (linesFile1.size() != linesFile2.size())
             return false;
 
-        for (String line1 : linesFile1) {
-            if (!linesFile2.contains(line1))
-                return false;
+        final String csvColumnRegex = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
+
+        String[][] file1RowsAndColumns = linesFile1.stream()
+                .map(row -> row.split(csvColumnRegex))
+                .toArray(String[][]::new);
+        String[][] file2RowsAndColumns = linesFile2.stream()
+                .map(row -> row.split(csvColumnRegex))
+                .toArray(String[][]::new);
+
+        // Verify that each cell from file1 exists in file2
+        for (int i = 0; i < file1RowsAndColumns.length; i++) {
+            for (int j = 0; j < file1RowsAndColumns[i].length; j++) {
+                // Skip 'File Path' column since its value is not deterministic
+                // and depends on the OS.
+                if (j == 7) {
+                    continue;
+                }
+
+                String cellFile1 = file1RowsAndColumns[i][j];
+                boolean cellMatches = false;
+
+                for (int x = 0; x < file2RowsAndColumns.length; x++) {
+                    String cellFile2 = file2RowsAndColumns[x][j];
+                    if (cellFile1.equals(cellFile2)) {
+                        cellMatches = true;
+                        break;
+                    }
+                }
+
+                if (!cellMatches) {
+                    return false;
+                }
+            }
         }
 
         return true;
